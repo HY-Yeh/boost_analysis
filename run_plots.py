@@ -20,6 +20,7 @@ class MySelectionProcessor(processor.ProcessorABC):
         ####################
 
         Electron = events.Electron
+        ele_pt = Electron.pt
         Electron["idx"] = ak.argsort(ak.argsort(Electron.pt), ascending=False)
         Electron["v4"] = ak.zip(
             {
@@ -33,6 +34,7 @@ class MySelectionProcessor(processor.ProcessorABC):
         )
 
         Muon = events.Muon
+        mu_pt = Muon.pt
         Muon["idx"] = ak.argsort(ak.argsort(Muon.pt), ascending=False)
         Muon["v4"] = ak.zip(
             {
@@ -233,76 +235,45 @@ class MySelectionProcessor(processor.ProcessorABC):
         ### Return results ###
         ######################
 
-        #---pt---#
-        
-        tight_ele_pt = electron_pt[tight_electron_mask]
-        tight_ele_pt = ak.flatten(tight_ele_pt)
-        tight_ele_pt = ak.to_list(tight_ele_pt)
-        
-        medium_ele_pt = electron_pt[medium_electron_mask]
-        medium_ele_pt = ak.flatten(medium_ele_pt)
-        medium_ele_pt = ak.to_list(medium_ele_pt)
-        
-        loose_ele_not_tight_pt = electron_pt[loose_electron_not_tight_mask]
-        loose_ele_not_tight_pt = ak.flatten(loose_ele_not_tight_pt)
-        loose_ele_not_tight_pt = ak.to_list(loose_ele_not_tight_pt)
-        
-        loose_ele_not_medium_pt = electron_pt[loose_electron_not_medium_mask]
-        loose_ele_not_medium_pt = ak.flatten(loose_ele_not_medium_pt)
-        loose_ele_not_medium_pt = ak.to_list(loose_ele_not_medium_pt)        
-        
-        tight_muon_pt = muon_pt[tight_muon_mask]
-        tight_muon_pt = ak.flatten(tight_muon_pt)
-        tight_muon_pt = ak.to_list(tight_muon_pt)
-        
-        medium_muon_pt = muon_pt[medium_muon_mask]
-        medium_muon_pt = ak.flatten(medium_muon_pt)
-        medium_muon_pt = ak.to_list(medium_muon_pt)
-        
-        loose_muon_not_tight_pt = muon_pt[loose_muon_not_tight_mask]
-        loose_muon_not_tight_pt = ak.flatten(loose_muon_not_tight_pt)
-        loose_muon_not_tight_pt = ak.to_list(loose_muon_not_tight_pt)
+        def save_array(variable, ID) :
+            array = variable[ID]
+            array = ak.flatten(array)
+            array = ak.to_list(array)
+            return array
 
-        loose_muon_not_medium_pt = muon_pt[loose_muon_not_medium_mask]
-        loose_muon_not_medium_pt = ak.flatten(loose_muon_not_medium_pt)
-        loose_muon_not_medium_pt = ak.to_list(loose_muon_not_medium_pt)
+        #---pt---#
+
+        ele_pt = ak.flatten(ele_pt)
+        ele_pt = ak.to_list(ele_pt)
+        mu_pt = ak.flatten(mu_pt)
+        mu_pt = ak.to_list(mu_pt)
+        
+        tight_ele_pt = save_array(electron_pt, tight_electron_mask)
+        medium_ele_pt = save_array(electron_pt, medium_electron_mask)
+        loose_ele_not_tight_pt = save_array(electron_pt, loose_electron_not_tight_mask)
+        loose_ele_not_medium_pt = save_array(electron_pt, loose_electron_not_medium_mask)
+
+        tight_muon_pt = save_array(muon_pt, tight_muon_mask)
+        medium_muon_pt = save_array(muon_pt, medium_muon_mask)
+        loose_muon_not_tight_pt = save_array(muon_pt, loose_muon_not_tight_mask)
+        loose_muon_not_medium_pt = save_array(muon_pt, loose_muon_not_medium_mask)
 
         #---iso---#
 
-        tight_ele_iso = electron_iso[tight_electron_mask]
-        tight_ele_iso = ak.flatten(tight_ele_iso)
-        tight_ele_iso = ak.to_list(tight_ele_iso)
-        
-        medium_ele_iso = electron_iso[medium_electron_mask]
-        medium_ele_iso = ak.flatten(medium_ele_iso)
-        medium_ele_iso = ak.to_list(medium_ele_iso)
-        
-        loose_ele_not_tight_iso = electron_iso[loose_electron_not_tight_mask]
-        loose_ele_not_tight_iso = ak.flatten(loose_ele_not_tight_iso)
-        loose_ele_not_tight_iso = ak.to_list(loose_ele_not_tight_iso)
-        
-        loose_ele_not_medium_iso = electron_iso[loose_electron_not_medium_mask]
-        loose_ele_not_medium_iso = ak.flatten(loose_ele_not_medium_iso)
-        loose_ele_not_medium_iso = ak.to_list(loose_ele_not_medium_iso)        
-        
-        tight_muon_iso = muon_iso[tight_muon_mask]
-        tight_muon_iso = ak.flatten(tight_muon_iso)
-        tight_muon_iso = ak.to_list(tight_muon_iso)
-        
-        medium_muon_iso = muon_iso[medium_muon_mask]
-        medium_muon_iso = ak.flatten(medium_muon_iso)
-        medium_muon_iso = ak.to_list(medium_muon_iso)
-        
-        loose_muon_not_tight_iso = muon_iso[loose_muon_not_tight_mask]
-        loose_muon_not_tight_iso = ak.flatten(loose_muon_not_tight_iso)
-        loose_muon_not_tight_iso = ak.to_list(loose_muon_not_tight_iso)
+        tight_ele_iso = save_array(electron_iso, tight_electron_mask)
+        medium_ele_iso = save_array(electron_iso, medium_electron_mask)
+        loose_ele_not_tight_iso = save_array(electron_iso, loose_electron_not_tight_mask)
+        loose_ele_not_medium_iso = save_array(electron_iso, loose_electron_not_medium_mask)
 
-        loose_muon_not_medium_iso = muon_iso[loose_muon_not_medium_mask]
-        loose_muon_not_medium_iso = ak.flatten(loose_muon_not_medium_iso)
-        loose_muon_not_medium_iso = ak.to_list(loose_muon_not_medium_iso)
+        tight_muon_iso = save_array(muon_iso, tight_muon_mask)
+        medium_muon_iso = save_array(muon_iso, medium_muon_mask)
+        loose_muon_not_tight_iso = save_array(muon_iso, loose_muon_not_tight_mask)
+        loose_muon_not_medium_iso = save_array(muon_iso, loose_muon_not_medium_mask)
 
 
         return {
+            "ele_pt": ele_pt,
+            "mu_pt": mu_pt,
             "lhe_ele_pt": lhe_ele_pt,
             "lhe_mu_pt":  lhe_mu_pt,
             "tight_ele_pt": tight_ele_pt,
@@ -356,97 +327,46 @@ if __name__ == "__main__":
     ### Plot ###
     ############
     
-
-    ele_distributions = [
-    ("tight_ele_pt", output['tight_ele_pt'], "blue"),
-    ("medium_ele_pt", output['medium_ele_pt'], "green"),
-    ("loose_ele_not_tight_pt", output['loose_ele_not_tight_pt'], "orange"),
-    ("loose_ele_not_medium_pt", output['loose_ele_not_medium_pt'], "red"),
-    ]
-
-    muon_distributions = [
-        ("tight_muon_pt", output['tight_muon_pt'], "blue"),
-        ("medium_muon_pt", output['medium_muon_pt'], "green"),
-        ("loose_muon_not_tight_pt", output['loose_muon_not_tight_pt'], "orange"),
-        ("loose_muon_not_medium_pt", output['loose_muon_not_medium_pt'], "red"),
-    ]
-
-    ele_iso = [
-    ("tight_ele_iso", output['tight_ele_iso'], "blue"),
-    ("medium_ele_iso", output['medium_ele_iso'], "green"),
-    ("loose_ele_not_tight_iso", output['loose_ele_not_tight_iso'], "orange"),
-    ("loose_ele_not_medium_iso", output['loose_ele_not_medium_iso'], "red"),
-    ]
-
-    muon_iso = [
-        ("tight_muon_iso", output['tight_muon_iso'], "blue"),
-        ("medium_muon_iso", output['medium_muon_iso'], "green"),
-        ("loose_muon_not_tight_iso", output['loose_muon_not_tight_iso'], "orange"),
-        ("loose_muon_not_medium_iso", output['loose_muon_not_medium_iso'], "red"),
-    ]
-
-
-    plt.figure(figsize=(8, 6))
-    for name, pt_array, color in ele_distributions:
-        plt.hist(pt_array, bins=40, range=(0, 1000), histtype='step', color=color, linewidth=1.5, label=name.replace("_", " "))
-    plt.xlabel("Electron $p_T$ [GeV]")
-    plt.ylabel("Events")
-    plt.title("Electron $p_T$ Distributions for H+ {mass}GeV".format(mass=config.mass))
-    plt.xticks(np.arange(0, 1025, 50))
-    plt.grid(True)
-    plt.legend()
-    plt.tight_layout()
-    plt.savefig("/eos/user/h/hyeh/preselection_result/plot/electron_pt_{mass}GeV_matching.png".format(mass=config.mass), dpi=300)
-    plt.close()
-
-
-    plt.figure(figsize=(8, 6))
-    for name, pt_array, color in muon_distributions:
-        plt.hist(pt_array, bins=40, range=(0, 1000), histtype='step', color=color, linewidth=1.5, label=name.replace("_", " "))
-    plt.xlabel("Muon $p_T$ [GeV]")
-    plt.ylabel("Events")
-    plt.title("Muon $p_T$ Distributions for H+ {mass}GeV".format(mass=config.mass))
-    plt.xticks(np.arange(0, 1025, 50))
-    plt.grid(True)
-    plt.legend()
-    plt.tight_layout()
-    plt.savefig("/eos/user/h/hyeh/preselection_result/plot/muon_pt_{mass}GeV_matching.png".format(mass=config.mass), dpi=300)
-    plt.close()   
     
+    def plot (variable, lepton):
+
+        array = [
+            (f"tight_{lepton}_{variable}", output[f'tight_{lepton}_{variable}'], "blue"),
+            (f"medium_{lepton}_{variable}", output[f'medium_{lepton}_{variable}'], "green"),
+            (f"loose_{lepton}_not_tight_{variable}", output[f'loose_{lepton}_not_tight_{variable}'], "orange"),
+            (f"loose_{lepton}_not_medium_{variable}", output[f'loose_{lepton}_not_medium_{variable}'], "red"),
+        ]
+
+        plt.figure(figsize=(8, 6))
+        for name, arr, color in array:
+            plt.hist(arr, bins=40, range=(0, 1000), histtype='step', color=color, linewidth=1.5, label=name.replace("_", " "))
+        plt.xlabel(f"{lepton} {variable} [GeV]")
+        plt.ylabel("Events")
+        plt.title(f"{lepton} {variable} Distributions for H+ {config.mass}GeV")
+        plt.xticks(np.arange(0, 1025, 50))
+        plt.grid(True)
+        plt.legend()
+        plt.tight_layout()
+        plt.savefig(f"/eos/user/h/hyeh/preselection_result/plot/{lepton}_{variable}_{config.mass}GeV_matching.png", dpi=300)
+        plt.close()
+        return
     
-    plt.figure(figsize=(8, 6))
-    for name, iso_array, color in ele_iso:
-        plt.hist(iso_array, bins=20, range=(0, 1), histtype='step', color=color, linewidth=1.5, label=name.replace("_", " "))
-    plt.xlabel("Electron iso")
-    plt.ylabel("Events")
-    plt.title("Electron iso Distributions for H+ {mass}GeV".format(mass=config.mass))
-    plt.xticks(np.arange(0, 1.1, 0.1))
-    plt.grid(True)
-    plt.legend()
-    plt.tight_layout()
-    plt.savefig("/eos/user/h/hyeh/preselection_result/plot/electron_iso_{mass}GeV_matching.png".format(mass=config.mass), dpi=300)
-    plt.close()
+    variables = ["pt", "iso"]
+    leptons = ["ele", "muon"]
+
+    for var in variables:
+        for lep in leptons:
+            plot(var, lep)
 
 
-    plt.figure(figsize=(8, 6))
-    for name, iso_array, color in muon_iso:
-        plt.hist(iso_array, bins=20, range=(0, 1), histtype='step', color=color, linewidth=1.5, label=name.replace("_", " "))
-    plt.xlabel("Muon iso")
-    plt.ylabel("Events")
-    plt.title("Muon iso Distributions for H+ {mass}GeV".format(mass=config.mass))
-    plt.xticks(np.arange(0, 1.1, 0.1))
-    plt.grid(True)
-    plt.legend()
-    plt.tight_layout()
-    plt.savefig("/eos/user/h/hyeh/preselection_result/plot/muon_iso_{mass}GeV_matching.png".format(mass=config.mass), dpi=300)
-    plt.close() 
-    
+
+    '''
     pt_bins = np.linspace(0, 1000, 21)
     bin_centers = 0.5 * (pt_bins[1:] + pt_bins[:-1])
 
     # --------- Electron ---------
-    lhe_ele_pt = np.asarray(output["lhe_ele_pt"])
-    den_e, _ = np.histogram(lhe_ele_pt, bins=pt_bins)
+    ele_pt = np.asarray(output["ele_pt"])
+    den_e, _ = np.histogram(ele_pt, bins=pt_bins)
 
     tight_ele_pt = np.asarray(output["tight_ele_pt"])
     medium_ele_pt = np.asarray(output["medium_ele_pt"])
@@ -489,8 +409,8 @@ if __name__ == "__main__":
     plt.close()
 
     # --------- Muon ---------
-    lhe_mu_pt = np.asarray(output["lhe_mu_pt"])
-    den_mu, _ = np.histogram(lhe_mu_pt, bins=pt_bins)
+    mu_pt = np.asarray(output["mu_pt"])
+    den_mu, _ = np.histogram(mu_pt, bins=pt_bins)
 
     tight_mu_pt  = np.asarray(output["tight_muon_pt"])
     medium_mu_pt = np.asarray(output["medium_muon_pt"])
@@ -520,3 +440,63 @@ if __name__ == "__main__":
     plt.tight_layout()
     plt.savefig("/eos/user/h/hyeh/preselection_result/plot/eff_vs_pt_muon_{mass}GeV.png".format(mass=config.mass), dpi=300)
     plt.close()
+    '''
+
+
+    bins = np.linspace(0, 1000, 51)  
+    bin_centers = 0.5 * (bins[1:] + bins[:-1])
+
+    tight_ele_pt  = output["tight_ele_pt"]
+    medium_ele_pt = output["medium_ele_pt"]
+    loose_ele_not_tight_pt =  output["loose_ele_not_tight_pt"]
+    loose_ele_not_medium_pt =  output["loose_ele_not_medium_pt"]
+
+    tight_mu_pt  = output["tight_muon_pt"]
+    medium_mu_pt = output["medium_muon_pt"]
+    loose_mu_not_tight_pt =  output["loose_muon_not_tight_pt"]
+    loose_mu_not_medium_pt =  output["loose_muon_not_medium_pt"]
+
+    def calculate_eff(pt_array) :
+        D = len(pt_array)
+        num = np.array([(pt_array >= t).sum() for t in bin_centers], dtype=float)
+        eff = num / D
+        err = np.sqrt(eff * (1.0 - eff) / D)
+        return eff, err
+    
+    eff_ele_tight, err_ele_tight = calculate_eff(tight_ele_pt)
+    eff_ele_medium,  err_ele_medium = calculate_eff(medium_ele_pt)
+    eff_ele_loose_not_tight, err_ele_loose_not_tight = calculate_eff(loose_ele_not_tight_pt)
+    eff_ele_loose_not_medium,  err_ele_loose_not_medium = calculate_eff(loose_ele_not_medium_pt)
+    
+    eff_mu_tight, err_mu_tight = calculate_eff(tight_mu_pt)
+    eff_mu_medium,  err_mu_medium = calculate_eff(medium_mu_pt)
+    eff_mu_loose_not_tight, err_mu_loose_not_tight = calculate_eff(loose_mu_not_tight_pt)
+    eff_mu_loose_not_medium,  err_mu_loose_not_medium = calculate_eff(loose_mu_not_medium_pt)
+
+    plt.figure(figsize=(8,6))
+    plt.errorbar(bin_centers, eff_ele_tight,  yerr=err_ele_tight,  fmt='^-', label='Muon tight')
+    plt.errorbar(bin_centers, eff_ele_medium, yerr=err_ele_medium, fmt='s-', label='Muon medium')
+    plt.errorbar(bin_centers, eff_ele_loose_not_tight,  yerr=err_ele_loose_not_tight,  fmt='o-', label='Muon loose not tight')
+    plt.errorbar(bin_centers, eff_ele_loose_not_medium,  yerr=err_ele_loose_not_medium,  fmt='o-', label='Muon loose not medium')
+    plt.xlabel(r'Electron $p_T$ [GeV]')
+    plt.ylabel('Efficiency')
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig("/eos/user/h/hyeh/preselection_result/plot/eff_vs_pt_electron_{mass}GeV.png".format(mass=config.mass), dpi=300)
+    plt.close()
+
+    plt.figure(figsize=(8,6))
+    plt.errorbar(bin_centers, eff_mu_tight,  yerr=err_mu_tight,  fmt='^-', label='Muon tight')
+    plt.errorbar(bin_centers, eff_mu_medium, yerr=err_mu_medium, fmt='s-', label='Muon medium')
+    plt.errorbar(bin_centers, eff_mu_loose_not_tight,  yerr=err_mu_loose_not_tight,  fmt='o-', label='Muon loose not tight')
+    plt.errorbar(bin_centers, eff_mu_loose_not_medium,  yerr=err_mu_loose_not_medium,  fmt='o-', label='Muon loose not medium')
+    plt.xlabel(r'Muon $p_T$ [GeV]')
+    plt.ylabel('Efficiency')
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig("/eos/user/h/hyeh/preselection_result/plot/eff_vs_pt_muon_{mass}GeV.png".format(mass=config.mass), dpi=300)
+    plt.close()
+
+    
