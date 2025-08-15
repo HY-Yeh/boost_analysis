@@ -92,7 +92,12 @@ class MySelectionProcessor(processor.ProcessorABC):
         Muon_idx = gen_matching(Muon, GenMuon.v4, 0.4)
 
         candidate_reco_electron = Electron[Electron_idx]
+        mask_ele_is_not_none = ak.is_none(candidate_reco_electron, axis=1) == False
+        candidate_reco_electron = candidate_reco_electron[mask_ele_is_not_none]
+
         candidate_reco_muon = Muon[Muon_idx]
+        mask_muon_is_not_none = ak.is_none(candidate_reco_muon, axis=1) == False
+        candidate_reco_muon = candidate_reco_muon[mask_muon_is_not_none]
         
         lepton = ak.concatenate([candidate_reco_electron, candidate_reco_muon], axis=1)
         mask_1l = (ak.num(lepton) == 1)
@@ -156,8 +161,7 @@ class MySelectionProcessor(processor.ProcessorABC):
             #& (reco_electron.miniPFRelIso_all < 0.1)
             & (has_e == True)
         )
-        tight_electron_mask = ak.fill_none(tight_electron_mask, False)
-        tight_electron = reco_electron[tight_electron_mask]
+
         
         medium_electron_mask = (
             ((abs_electron_eta < 1.4442) | ((1.566 < abs_electron_eta) & (abs_electron_eta < 2.5)))
@@ -165,8 +169,7 @@ class MySelectionProcessor(processor.ProcessorABC):
             #& (reco_electron.miniPFRelIso_all < 0.1)
             & (has_e == True)
         )
-        medium_electron_mask = ak.fill_none(medium_electron_mask, False)
-        medium_electron = reco_electron[medium_electron_mask]
+        
 
         loose_electron_not_tight_mask = (           
             ((abs_electron_eta < 1.4442) | ((1.566 < abs_electron_eta) & (abs_electron_eta < 2.5)))
@@ -176,8 +179,7 @@ class MySelectionProcessor(processor.ProcessorABC):
             #& (reco_electron.miniPFRelIso_all < 0.4)
             & (has_e == True)
         )
-        loose_electron_not_tight_mask = ak.fill_none(loose_electron_not_tight_mask, False)
-        loose_electron_not_tight = reco_electron[loose_electron_not_tight_mask]
+        
         
         loose_electron_not_medium_mask = (          
             ((abs_electron_eta < 1.4442) | ((1.566 < abs_electron_eta) & (abs_electron_eta < 2.5)))
@@ -187,8 +189,7 @@ class MySelectionProcessor(processor.ProcessorABC):
             #& (reco_electron.miniPFRelIso_all < 0.4)
             & (has_e == True)
         )
-        loose_electron_not_medium_mask = ak.fill_none(loose_electron_not_medium_mask, False)
-        loose_electron_not_medium = reco_electron[loose_electron_not_medium_mask]
+        
 
         tight_muon_mask = (       
             (abs_muon_eta < 2.4)
@@ -196,8 +197,7 @@ class MySelectionProcessor(processor.ProcessorABC):
             #& (reco_muon.miniPFRelIso_all < 0.1)
             & (has_mu == True)
         )
-        tight_muon_mask = ak.fill_none(tight_muon_mask, False)
-        tight_muon = reco_muon[tight_muon_mask]
+        
         
         medium_muon_mask = (
             (abs_muon_eta < 2.4)
@@ -205,8 +205,7 @@ class MySelectionProcessor(processor.ProcessorABC):
             #& (reco_muon.miniPFRelIso_all < 0.1)
             & (has_mu == True)
         )
-        medium_muon_mask = ak.fill_none(medium_muon_mask, False)
-        medium_muon = reco_muon[medium_muon_mask]
+        
         
         loose_muon_not_tight_mask = (        
             (abs_muon_eta < 2.4)
@@ -216,8 +215,7 @@ class MySelectionProcessor(processor.ProcessorABC):
             #& (reco_muon.miniPFRelIso_all < 0.4)
             & (has_mu == True)
         )
-        loose_muon_not_tight_mask = ak.fill_none(loose_muon_not_tight_mask, False)
-        loose_muon_not_tight = reco_muon[loose_muon_not_tight_mask]
+        
         
         loose_muon_not_medium_mask = (       
             (abs_muon_eta < 2.4)
@@ -227,9 +225,7 @@ class MySelectionProcessor(processor.ProcessorABC):
             #& (reco_muon.miniPFRelIso_all < 0.4)
             & (has_mu == True)
         )
-        loose_muon_not_medium_mask = ak.fill_none(loose_muon_not_medium_mask, False)
-        loose_muon_not_medium = reco_muon[loose_muon_not_medium_mask]
-        
+                
 
         ######################
         ### Return results ###
@@ -243,9 +239,11 @@ class MySelectionProcessor(processor.ProcessorABC):
 
         #---pt---#
 
-        ele_pt = ak.flatten(ele_pt)
+        ele_pt = ak.flatten(electron_pt)
+        ele_pt = ak.fill_none(ele_pt, False)
         ele_pt = ak.to_list(ele_pt)
-        mu_pt = ak.flatten(mu_pt)
+        mu_pt = ak.flatten(muon_pt)
+        mu_pt = ak.fill_none(mu_pt, False)
         mu_pt = ak.to_list(mu_pt)
         
         tight_ele_pt = save_array(electron_pt, tight_electron_mask)
@@ -358,9 +356,11 @@ if __name__ == "__main__":
         for lep in leptons:
             plot(var, lep)
 
+    #######################
+    ### Efficiency plot ###
+    #######################
 
-
-    '''
+    
     pt_bins = np.linspace(0, 1000, 21)
     bin_centers = 0.5 * (pt_bins[1:] + pt_bins[:-1])
 
@@ -401,6 +401,7 @@ if __name__ == "__main__":
     plt.errorbar(bin_centers, eff_e_tight,  yerr=err_e_tight,  fmt='^-', label='Electron tight (WP80)')
     plt.xlabel(r'Electron $p_T$ [GeV]')
     plt.ylabel('Efficiency')
+    plt.title(f"Electron eff_vs_pt Distributions for H+ {config.mass}GeV")
     #plt.ylim(0, 2)
     plt.grid(True)
     plt.legend()
@@ -434,16 +435,17 @@ if __name__ == "__main__":
     plt.errorbar(bin_centers, eff_mu_tight,  yerr=err_mu_tight,  fmt='^-', label='Muon tight')
     plt.xlabel(r'Muon $p_T$ [GeV]')
     plt.ylabel('Efficiency')
+    plt.title(f"Muon eff_vs_pt Distributions for H+ {config.mass}GeV")
     #plt.ylim(0, 2)
     plt.grid(True)
     plt.legend()
     plt.tight_layout()
     plt.savefig("/eos/user/h/hyeh/preselection_result/plot/eff_vs_pt_muon_{mass}GeV.png".format(mass=config.mass), dpi=300)
     plt.close()
+    
+
     '''
-
-
-    bins = np.linspace(0, 1000, 51)  
+    bins = np.linspace(0, 80, 21)  
     bin_centers = 0.5 * (bins[1:] + bins[:-1])
 
     tight_ele_pt  = output["tight_ele_pt"]
@@ -498,5 +500,6 @@ if __name__ == "__main__":
     plt.tight_layout()
     plt.savefig("/eos/user/h/hyeh/preselection_result/plot/eff_vs_pt_muon_{mass}GeV.png".format(mass=config.mass), dpi=300)
     plt.close()
+    '''
 
     
